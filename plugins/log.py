@@ -11,19 +11,24 @@ def get_indian_time(hour=0, minute=0):
     indian_timezone = pytz.timezone("Asia/Kolkata")
     return utc_now.replace(hour=hour, minute=minute).astimezone(indian_timezone)
 
+
 # Initialize a list to keep track of the current digit values
 current_digits = [0, 0, 0, 0]
 
 # Dictionary to keep track of active tasks
 active_tasks = {}
 
-# Modify the send_log_message function
-async def send_log_message(chat_id, hour, minute):
+# Modified send_log_message function
+async def send_log_message(client, chat_id, hour, minute):
     while True:
-        indian_now = get_indian_time(hour, minute)
-        message = f"This is a daily log message. Current Indian Time: {indian_now.strftime('%Y-%m-%d %H:%M')}"
-        await bot.send_message(LOG_CHANNEL, message)
-        await bot.send_message(chat_id, message)  # Send the message to ADMINS
+        current_time = datetime.datetime.now(pytz.utc)
+        indian_now = get_indian_time()
+
+        if indian_now.hour == hour and indian_now.minute == minute:
+            message = f"This is a daily log message. Current Indian Time: {indian_now.strftime('%Y-%m-%d %H:%M')}"
+            await client.send_message(LOG_CHANNEL, message)
+            await client.send_message(chat_id, message)  # Send the message to ADMINS
+
         await asyncio.sleep(10)  # Sleep for 1 minute
         
         # Check if the task needs to be stopped
