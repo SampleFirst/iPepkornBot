@@ -10,6 +10,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerId
 from Script import script
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from utils import get_size, is_subscribed, get_poster, search_gagala, temp, get_settings, save_group_settings, get_shortlink
+from .ExtraMods.carbon import make_carbon
 from database.users_chats_db import db
 from database.ia_filterdb import Media, get_file_details, get_search_results, get_all_files
 from database.filters_mdb import del_all, find_filter, get_filters
@@ -777,17 +778,17 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "admin":
         buttons = [[
-            InlineKeyboardButton('𝙶𝙻𝙾𝙱𝙰𝙻 𝙵𝙸𝙻𝚃𝙴𝚁', callback_data='gfill'),
-            InlineKeyboardButton('𝚄𝚂𝙴𝚁 & 𝙲𝙷𝙰𝚃', callback_data='uschat')
-            ],[
-            InlineKeyboardButton('🔙 𝙱𝙰𝙲𝙺', callback_data='help')
+            InlineKeyboardButton('✘ Cʟᴏꜱᴇ', 'close_data'),
+            InlineKeyboardButton('« Bᴀᴄᴋ', 'help')           
         ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        if query.from_user.id in ADMINS:
-            await query.edit_message_media(InputMediaPhoto(random.choice(PICS), script.ADMIN_TXT, enums.ParseMode.HTML), reply_markup=reply_markup)
-        else:
-            await query.answer("Your Not Authorizer ⚠️", show_alert=True)
-
+        if query.from_user.id not in ADMINS:
+            return await query.answer("Sᴏʀʀʏ Tʜɪs Mᴇɴᴜ Oɴʟʏ Fᴏʀ Mʏ Aᴅᴍɪɴs ⚒️", show_alert=True)
+        await query.message.edit("Pʀᴏᴄᴇꜱꜱɪɴɢ Wᴀɪᴛ Fᴏʀ 15 ꜱᴇᴄ...")
+        total, used, free = shutil.disk_usage(".")
+        stats = script.SERVER_STATS.format(get_time(time.time() - client.uptime), psutil.cpu_percent(), psutil.virtual_memory().percent, humanbytes(total), humanbytes(used), psutil.disk_usage('/').percent, humanbytes(free))            
+        stats_pic = await make_carbon(stats, True)
+        await query.edit_message_media(InputMediaPhoto(stats_pic, script.ADMIN_TXT, enums.ParseMode.HTML), reply_markup=InlineKeyboardMarkup(buttons))
+        
     elif query.data == "gfill":
         buttons = [[            
             InlineKeyboardButton('🔙 𝙱𝙰𝙲𝙺', callback_data='admin')
