@@ -178,7 +178,17 @@ Today Users: {g}
 Date: <code>{e}</code>
 Time: <code>{f}</code>
 By {h}"""
-   
+
+
+    SERVER_STATS = """Sᴇʀᴠᴇʀ Sᴛᴀᴛꜱ:
+ 
+Uᴩᴛɪᴍᴇ: {}
+CPU Uꜱᴀɢᴇ: {}%
+RAM Uꜱᴀɢᴇ: {}%
+Tᴏᴛᴀʟ Dɪꜱᴋ: {}
+Uꜱᴇᴅ Dɪꜱᴋ: {} ({}%)
+Fʀᴇᴇ Dɪꜱᴋ: {}"""
+    
     ZOMBIES_TXT = """𝙷𝙴𝙻𝙿 𝚈𝙾𝚄 𝚃𝙾 𝙺𝙸𝙲𝙺 𝚄𝚂𝙴𝚁𝚂
 
 <b>Kick incative members from group. Add me as admin with ban users permission in group.</b>
