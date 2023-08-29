@@ -26,9 +26,8 @@ async def send_log_message(client, chat_id, hour, minute):
 
         if indian_now.hour == hour and indian_now.minute == minute:
             message = f"This is a daily log message. Current Indian Time: {indian_now.strftime('%Y-%m-%d %H:%M')}"
-            await client.send_message(LOG_CHANNEL, message)
-            await client.send_message(chat_id, message)  # Send the message to ADMINS
-
+            await self.send_message(chat_id=LOG_CHANNEL, message)
+            
         await asyncio.sleep(10)  # Sleep for 1 minute
         
         # Check if the task needs to be stopped
