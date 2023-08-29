@@ -11,6 +11,9 @@ def get_indian_time(hour=0, minute=0):
     indian_timezone = pytz.timezone("Asia/Kolkata")
     return utc_now.replace(hour=hour, minute=minute).astimezone(indian_timezone)
 
+# Initialize a list to keep track of the current digit values
+current_digits = [0, 0, 0, 0]
+
 # Dictionary to keep track of active tasks
 active_tasks = {}
 
@@ -28,6 +31,7 @@ async def send_log_message(chat_id, hour, minute):
             break
 
 
+# Add command handler and callback handler
 @Client.on_message(filters.command('Report') & filters.user(ADMINS))
 async def report_send(_, message):
     chat_id = message.chat.id
@@ -62,8 +66,6 @@ async def report_send(_, message):
         status_text = "You currently don't have an active reporting task."
         await message.reply(status_text, reply_markup=keyboard)
 
-
-# Modify the callback_handler function
 @Client.on_callback_query(filters.user(ADMINS))
 async def callback_handler(_, query: CallbackQuery):
     chat_id = query.message.chat.id
@@ -103,14 +105,14 @@ async def callback_handler(_, query: CallbackQuery):
             await query.message.edit_text("Reporting stopped.", reply_markup=keyboard)
     
     elif data == "change_time":
-        # Create 4 toggle buttons for each digit
+        # Create toggle buttons for each digit, showing their current values
         keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("0", callback_data="set_digit_0"),
-                    InlineKeyboardButton("0", callback_data="set_digit_1"),
-                    InlineKeyboardButton("0", callback_data="set_digit_2"),
-                    InlineKeyboardButton("0", callback_data="set_digit_3"),
+                    InlineKeyboardButton(str(current_digits[0]), callback_data="set_digit_0"),
+                    InlineKeyboardButton(str(current_digits[1]), callback_data="set_digit_1"),
+                    InlineKeyboardButton(str(current_digits[2]), callback_data="set_digit_2"),
+                    InlineKeyboardButton(str(current_digits[3]), callback_data="set_digit_3"),
                 ],
                 [
                     InlineKeyboardButton("Set Time", callback_data="confirm_time"),
@@ -122,19 +124,21 @@ async def callback_handler(_, query: CallbackQuery):
     
     elif data.startswith("set_digit_"):
         digit_index = int(data.split("_")[2])
+        current_digit = current_digits[digit_index]
+
+        # Cycle the current digit value from 0 to 9
+        new_digit = (current_digit + 1) % 10
+        current_digits[digit_index] = new_digit
+
+        # Update the button text with the new digit value
         keyboard = query.message.reply_markup.inline_keyboard
-        current_digit = int(keyboard[0][digit_index].text)
-        
-        # Toggle the current digit between 0 and 1
-        new_digit = 1 - current_digit
         keyboard[0][digit_index].text = str(new_digit)
         await query.message.edit_reply_markup(InlineKeyboardMarkup(inline_keyboard=keyboard))
-    
+
     elif data == "confirm_time":
-        keyboard = query.message.reply_markup.inline_keyboard
-        new_hour = int(keyboard[0][1].text + keyboard[0][0].text)
-        new_minute = int(keyboard[0][3].text + keyboard[0][2].text)
-        
+        new_hour = current_digits[1] * 10 + current_digits[0]
+        new_minute = current_digits[3] * 10 + current_digits[2]
+
         if 0 <= new_hour < 24 and 0 <= new_minute < 60:
             if chat_id in active_tasks:
                 active_tasks[chat_id].cancel()
@@ -143,7 +147,7 @@ async def callback_handler(_, query: CallbackQuery):
             status_text = f"Reporting time changed. Reporting started at {new_hour:02d}:{new_minute:02d}."
         else:
             status_text = "Invalid time format. Please enter a valid time."
-        
+
         keyboard = InlineKeyboardMarkup(
             [
                 [
@@ -159,3 +163,4 @@ async def callback_handler(_, query: CallbackQuery):
     
     elif data == "cancel_log":
         await query.message.edit_text("Action canceled.")
+
