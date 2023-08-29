@@ -103,36 +103,59 @@ async def callback_handler(_, query: CallbackQuery):
             await query.message.edit_text("Reporting stopped.", reply_markup=keyboard)
     
     elif data == "change_time":
-        await query.message.edit_text("Please enter the new time in HH:MM format.\nExample: 15:30")
-
-    elif data.startswith("set_time"):
-        _, new_hour, new_minute = data.split("_")
-        if new_hour.isdigit() and new_minute.isdigit():
-            new_hour = int(new_hour)
-            new_minute = int(new_minute)
-            if 0 <= new_hour < 24 and 0 <= new_minute < 60:
-                if chat_id in active_tasks:
-                    active_tasks[chat_id].cancel()
-                    del active_tasks[chat_id]
-                active_tasks[chat_id] = asyncio.create_task(send_log_message(chat_id, new_hour, new_minute))
-                keyboard = InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton("Stop Reporting", callback_data="stop_log"),
-                            InlineKeyboardButton("Change Time", callback_data="change_time"),
-                        ],
-                        [
-                            InlineKeyboardButton("Cancel", callback_data="cancel_log"),
-                        ]
-                    ]
-                )
-                status_text = f"Reporting time changed. Reporting started at {new_hour:02d}:{new_minute:02d}."
-                await query.message.edit_text(status_text, reply_markup=keyboard)
-            else:
-                await query.answer("Invalid time format. Please enter a valid time.")
+        # Create 4 toggle buttons for each digit
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("0", callback_data="set_digit_0"),
+                    InlineKeyboardButton("0", callback_data="set_digit_1"),
+                    InlineKeyboardButton("0", callback_data="set_digit_2"),
+                    InlineKeyboardButton("0", callback_data="set_digit_3"),
+                ],
+                [
+                    InlineKeyboardButton("Set Time", callback_data="confirm_time"),
+                    InlineKeyboardButton("Cancel", callback_data="cancel_log"),
+                ]
+            ]
+        )
+        await query.message.edit_text("Please select the new time in HH:MM format.", reply_markup=keyboard)
+    
+    elif data.startswith("set_digit_"):
+        digit_index = int(data.split("_")[2])
+        keyboard = query.message.reply_markup.inline_keyboard
+        current_digit = int(keyboard[0][digit_index].text)
+        
+        # Toggle the current digit between 0 and 1
+        new_digit = 1 - current_digit
+        keyboard[0][digit_index].text = str(new_digit)
+        await query.message.edit_reply_markup(InlineKeyboardMarkup(inline_keyboard=keyboard))
+    
+    elif data == "confirm_time":
+        keyboard = query.message.reply_markup.inline_keyboard
+        new_hour = int(keyboard[0][1].text + keyboard[0][0].text)
+        new_minute = int(keyboard[0][3].text + keyboard[0][2].text)
+        
+        if 0 <= new_hour < 24 and 0 <= new_minute < 60:
+            if chat_id in active_tasks:
+                active_tasks[chat_id].cancel()
+                del active_tasks[chat_id]
+            active_tasks[chat_id] = asyncio.create_task(send_log_message(chat_id, new_hour, new_minute))
+            status_text = f"Reporting time changed. Reporting started at {new_hour:02d}:{new_minute:02d}."
         else:
-            await query.answer("Invalid time format. Please enter a valid time.")
+            status_text = "Invalid time format. Please enter a valid time."
+        
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Stop Reporting", callback_data="stop_log"),
+                    InlineKeyboardButton("Change Time", callback_data="change_time"),
+                ],
+                [
+                    InlineKeyboardButton("Cancel", callback_data="cancel_log"),
+                ]
+            ]
+        )
+        await query.message.edit_text(status_text, reply_markup=keyboard)
     
     elif data == "cancel_log":
         await query.message.edit_text("Action canceled.")
-      
