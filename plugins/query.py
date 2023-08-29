@@ -1,6 +1,6 @@
-import asyncio, re, ast, math, logging, random, pyrogram
+import asyncio, re, ast, time, math, logging, random, pyrogram, shutil, psutil 
 
-# pyrogram functions
+# Pyrogram Functions
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
 from pyrogram import Client, filters, enums 
