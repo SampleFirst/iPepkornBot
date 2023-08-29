@@ -85,7 +85,7 @@ async def callback_handler(_, query: CallbackQuery):
                     ]
                 ]
             )
-            await query.message.edit_text("Reporting started.", reply_markup=keyboard, quote=True)
+            await query.message.edit_text("Reporting started.", reply_markup=keyboard)
     
     elif data == "stop_log":
         if chat_id in active_tasks:
@@ -102,7 +102,7 @@ async def callback_handler(_, query: CallbackQuery):
                     ]
                 ]
             )
-            await query.message.edit_text("Reporting stopped.", reply_markup=keyboard, quote=True)
+            await query.message.edit_text("Reporting stopped.", reply_markup=keyboard)
     
     elif data == "change_time":
         # Create toggle buttons for each digit, showing their current values
@@ -120,7 +120,7 @@ async def callback_handler(_, query: CallbackQuery):
                 ]
             ]
         )
-        await query.message.edit_text("Please select the new time in HH:MM format.", reply_markup=keyboard, quote=True)
+        await query.message.edit_text("Please select the new time in HH:MM format.", reply_markup=keyboard)
     
     elif data.startswith("set_digit_"):
         digit_index = int(data.split("_")[2])
@@ -159,10 +159,10 @@ async def callback_handler(_, query: CallbackQuery):
                 ]
             ]
         )
-        await query.message.edit_text(status_text, reply_markup=keyboard, quote=True)
+        await query.message.edit_text(status_text, reply_markup=keyboard)
     
     elif data == "cancel_log":
-        await query.message.edit_text("Action canceled.", quote=True)
+        await query.message.edit_text("Action canceled.")
         await asyncio.sleep(5)
         await query.message.delete()
     
