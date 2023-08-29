@@ -21,10 +21,10 @@ active_tasks = {}
 async def send_log_message(chat_id, hour, minute):
     while True:
         indian_now = get_indian_time(hour, minute)
-        message = f"This is a daily log message. Current Indian Time: {indian_now.strftime('%Y-%m-%d %H:%M:%S')}"
+        message = f"This is a daily log message. Current Indian Time: {indian_now.strftime('%Y-%m-%d %H:%M')}"
         await bot.send_message(LOG_CHANNEL, message)
         await bot.send_message(chat_id, message)  # Send the message to ADMINS
-        await asyncio.sleep(60)  # Sleep for 1 minute
+        await asyncio.sleep(10)  # Sleep for 1 minute
         
         # Check if the task needs to be stopped
         if chat_id not in active_tasks:
@@ -50,7 +50,7 @@ async def report_send(_, message):
             ]
         )
         status_text = "You have an active reporting task."
-        await message.reply(status_text, reply_markup=keyboard)
+        await message.reply(status_text, reply_markup=keyboard, quote=True)
     else:
         keyboard = InlineKeyboardMarkup(
             [
@@ -64,7 +64,7 @@ async def report_send(_, message):
             ]
         )
         status_text = "You currently don't have an active reporting task."
-        await message.reply(status_text, reply_markup=keyboard)
+        await message.reply(status_text, reply_markup=keyboard, quote=True)
 
 @Client.on_callback_query(filters.user(ADMINS))
 async def callback_handler(_, query: CallbackQuery):
@@ -85,7 +85,7 @@ async def callback_handler(_, query: CallbackQuery):
                     ]
                 ]
             )
-            await query.message.edit_text("Reporting started.", reply_markup=keyboard)
+            await query.message.edit_text("Reporting started.", reply_markup=keyboard, quote=True)
     
     elif data == "stop_log":
         if chat_id in active_tasks:
@@ -102,7 +102,7 @@ async def callback_handler(_, query: CallbackQuery):
                     ]
                 ]
             )
-            await query.message.edit_text("Reporting stopped.", reply_markup=keyboard)
+            await query.message.edit_text("Reporting stopped.", reply_markup=keyboard, quote=True)
     
     elif data == "change_time":
         # Create toggle buttons for each digit, showing their current values
@@ -120,7 +120,7 @@ async def callback_handler(_, query: CallbackQuery):
                 ]
             ]
         )
-        await query.message.edit_text("Please select the new time in HH:MM format.", reply_markup=keyboard)
+        await query.message.edit_text("Please select the new time in HH:MM format.", reply_markup=keyboard, quote=True)
     
     elif data.startswith("set_digit_"):
         digit_index = int(data.split("_")[2])
@@ -159,8 +159,10 @@ async def callback_handler(_, query: CallbackQuery):
                 ]
             ]
         )
-        await query.message.edit_text(status_text, reply_markup=keyboard)
+        await query.message.edit_text(status_text, reply_markup=keyboard, quote=True)
     
     elif data == "cancel_log":
-        await query.message.edit_text("Action canceled.")
-
+        await query.message.edit_text("Action canceled.", quote=True)
+        await asyncio.sleep(5)
+        await query.message.delete()
+    
