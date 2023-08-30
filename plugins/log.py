@@ -21,11 +21,10 @@ async def send_log_message(chat_id, new_hour, new_minute):
         current_hour = now.hour if am_pm_toggle == 0 else (now.hour + 12) % 24
         if current_hour == new_hour and now.minute == new_minute:
             message_text = f"Reporting time has arrived for user {chat_id}."
-            user_id = message.from_user.id
-            chat_id = message.chat.id
-            await client.send_message(user_id, message_text)
+            user_id = chat_id  # Use chat_id instead of message.from_user.id
+            await client.send_message(user_id, message_text)  # Add 'await' here
             await client.send_message(LOG_CHANNEL, message_text)
-        await asyncio.sleep(60)  # Check every minute
+        await asyncio.sleep(60)
 
 
 # Add command handler and callback handler
