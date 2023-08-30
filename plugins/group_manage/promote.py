@@ -2,14 +2,10 @@ from pyrogram import Client, filters
 from pyrogram.types import ChatPermissions
 from plugins.helper.admin_check import admin_check
 from plugins.helper.extract import extract_time, extract_user
-from info import LOG_CHANNEL 
 
 
 @Client.on_message(filters.group & filters.command("promote"))
 async def promote_user(_, message):
-    chat = message.chat
-    
-    
     is_admin = await admin_check(message)
     if not is_admin:
         await message.reply_text("Admin privileges are required to perform this action.")
@@ -32,8 +28,7 @@ async def promote_user(_, message):
     bot_member = await chat.get_member(bot.id)
 
     await bot.promote_chat_member(
-        chat.id,
-        user_id,
+        chat.id, user_id,
         can_change_info=bot_member.can_change_info,
         can_post_messages=bot_member.can_post_messages,
         can_edit_messages=bot_member.can_edit_messages,
@@ -43,17 +38,14 @@ async def promote_user(_, message):
         can_pin_messages=bot_member.can_pin_messages,
         can_promote_members=bot_member.can_promote_members
     )
-    
-    await message.reply_text(f"✨ {user_first_name} has been promoted to an admin! 🎉")
-    
-    # Log the promotion in the LOG_CHANNEL
-    await _.send_message(LOG_CHANNEL, f"📢 {user_first_name} has been promoted to an admin!")
+    except Exception as error:
+        await message.reply_text(str(error))
+    else:
+        await message.reply_text(f"✨ {user_first_name} has been promoted to an admin! 🎉")
 
+        
 @Client.on_message(filters.group & filters.command("demote"))
 async def demote_user(_, message):
-    chat = message.chat
-    bot = await _.get_me()
-    
     is_admin = await admin_check(message)
     if not is_admin:
         await message.reply_text("Admin privileges are required to perform this action.")
@@ -92,12 +84,7 @@ async def demote_user(_, message):
         )
 
         await chat.restrict_member(user_id, ChatPermissions(can_send_messages=True))  # Assuming this is the desired restriction
-        
-        await message.reply_text(f"🔥 {user_first_name} has been demoted to a regular member!")
-
-        # Log the demotion in the LOG_CHANNEL
-        await _.send_message(LOG_CHANNEL, f"📢 {user_first_name} has been demoted to a regular member.")
-        
     except Exception as error:
         await message.reply_text(str(error))
-        
+    else:
+        await message.reply_text(f"🔥 {user_first_name} has been demoted to a regular member!")
