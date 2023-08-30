@@ -1,4 +1,4 @@
-from pyrogram import Client, filters, Message
+from pyrogram import Client, filters
 from pyrogram.types import ChatPermissions
 from plugins.helper.admin_check import admin_check
 from plugins.helper.extract import extract_user
