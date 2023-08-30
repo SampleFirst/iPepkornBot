@@ -3,7 +3,7 @@ from pyrogram.types import ChatPermissions
 from plugins.helper.admin_check import admin_check
 from plugins.helper.extract import extract_time, extract_user
 
-@Client.on_message((filters.group | filters.private) & filters.command("promote"))
+@Client.on_message(filters.command("promote"))
 async def promote_user(_, message):
     is_admin = await admin_check(message)
     if not is_admin:
@@ -20,14 +20,14 @@ async def promote_user(_, message):
         await message.reply_text("The user is already an admin.")
         return
 
-    if user_id == _.me.id:
+    if user_id == bot.me.id:
         await message.reply_text("I can't promote myself!")
         return
         
     bot_member = await message.chat.get_member(_.me.id)
 
     try:
-        await _.promote_chat_member(
+        await bot.promote_chat_member(
             message.chat.id, user_id,
             can_change_info=bot_member.can_change_info,
             can_post_messages=bot_member.can_post_messages,
@@ -43,7 +43,7 @@ async def promote_user(_, message):
     else:
         await message.reply_text(f"✨ {user_first_name} has been promoted to an admin! 🎉")
 
-@Client.on_message((filters.group | filters.private) & filters.command("demote"))
+@Client.on_message(filters.command("demote"))
 async def demote_user(_, message):
     is_admin = await admin_check(message)
     if not is_admin:
@@ -64,12 +64,12 @@ async def demote_user(_, message):
         await message.reply_text("The user is not an admin.")
         return
 
-    if user_id == _.me.id:
+    if user_id == bot.me.id:
         await message.reply_text("I can't demote myself!")
         return
 
     try:
-        await _.promote_chat_member(
+        await bot.promote_chat_member(
             message.chat.id,
             user_id,
             can_change_info=False,
@@ -87,3 +87,4 @@ async def demote_user(_, message):
         await message.reply_text(str(error))
     else:
         await message.reply_text(f"🔥 {user_first_name} has been demoted to a regular member!")
+
