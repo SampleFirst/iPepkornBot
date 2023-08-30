@@ -14,17 +14,16 @@ active_tasks = {}
 # Add AM/PM toggle button state
 am_pm_toggle = 0  # 0 for AM, 1 for PM
 
+
 # Function to send log message
 async def send_log_message(chat_id, new_hour, new_minute):
-    while True:
-        now = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
-        current_hour = now.hour if am_pm_toggle == 0 else (now.hour + 12) % 24
-        if current_hour == new_hour and now.minute == new_minute:
-            message_text = f"Reporting time has arrived for user {chat_id}."
-            user_id = chat_id  # Use chat_id instead of message.from_user.id
-            await client.send_message(user_id, message_text)  # Add 'await' here
-            await client.send_message(LOG_CHANNEL, message_text)
-        await asyncio.sleep(60)
+    now = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+    current_hour = now.hour if am_pm_toggle == 0 else (now.hour + 12) % 24
+    if current_hour == new_hour and now.minute == new_minute:
+        message_text = f"Reporting time has arrived for user {chat_id}."
+        user_id = chat_id
+        await client.send_message(user_id, message_text)
+        await client.send_message(LOG_CHANNEL, message_text)
 
 
 # Add command handler and callback handler
@@ -168,6 +167,28 @@ async def callback_handler(_, query: CallbackQuery):
         )
         await query.message.edit_text(status_text, reply_markup=keyboard)
     
+    elif data == "restart_log":
+        if chat_id in active_tasks:
+            active_tasks[chat_id].cancel()
+        active_tasks[chat_id] = asyncio.create_task(send_log_message(chat_id, current_digits[1] * 10 + current_digits[0], current_digits[3] * 10 + current_digits[2]))
+        am_pm_text = "AM" if am_pm_toggle == 0 else "PM"
+        status_text = f"Reporting restarted. Reporting time set at {current_digits[1] * 10 + current_digits[0]:02d}:{current_digits[3] * 10 + current_digits[2]:02d} {am_pm_text}."
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Stop Reporting", callback_data="stop_log"),
+                    InlineKeyboardButton("Change Time", callback_data="change_time"),
+                    InlineKeyboardButton("Restart Reporting", callback_data="restart_log"),
+                ],
+                [
+                    InlineKeyboardButton("Cancel", callback_data="cancel_log"),
+                ]
+            ]
+        )
+        await query.message.edit_text(status_text, reply_markup=keyboard)
+
+    # Rest of the callback handler code remains unchanged
+
     elif data == "cancel_log":
         await query.message.edit_text("Action canceled.")
         await asyncio.sleep(5)
