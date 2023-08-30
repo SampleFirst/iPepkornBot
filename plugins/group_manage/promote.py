@@ -8,7 +8,7 @@ from info import LOG_CHANNEL
 @Client.on_message(filters.group & filters.command("promote"))
 async def promote_user(_, message):
     chat = message.chat
-    bot = await _.get_me()
+    
     
     is_admin = await admin_check(message)
     if not is_admin:
