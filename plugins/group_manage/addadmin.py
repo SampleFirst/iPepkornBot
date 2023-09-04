@@ -4,8 +4,8 @@ from pyrogram.types import ChatPrivileges
 from info import ADMINS
 
 # Define a list of channel IDs and group IDs
-chat_channel_ids = [-1001913586283, -1001835657274]  # Replace with your actual channel IDs
-chat_group_ids = []  # Replace with your actual group IDs
+chat_channel_ids = [-1001908555438] # Replace with your actual channel IDs
+chat_group_ids = [] # Replace with your actual group IDs
 
 
 # Define your command handler for adding admin in a channel
@@ -58,10 +58,11 @@ async def add_group_admin(client, message):
 
     for chat_id in chat_group_ids:
         try:
-            await client.promote_chat_member(
-                chat_id,
-                user_id,
-                privileges=ChatPrivileges(
+            chat_info = await client.get_chat(chat_id)
+            is_supergroup = chat_info.is_verified  # Await the get_chat method and access 'is_verified'
+
+            if is_supergroup:
+                privileges = ChatPrivileges(
                     can_change_info=True,
                     can_delete_messages=True,
                     can_manage_video_chats=True,
@@ -71,11 +72,23 @@ async def add_group_admin(client, message):
                     can_pin_messages=True,
                     is_anonymous=True,
                     can_manage_chat=True
-                ),
-            )
+                )
+                await message.reply(f"User added as an admin in supergroup {chat_id} with specified privileges.")
+            else:
+                privileges = ChatPrivileges(
+                    can_change_info=True,
+                    can_delete_messages=True,
+                    can_manage_video_chats=True,
+                    can_restrict_members=True,
+                    can_promote_members=True,
+                    can_invite_users=True,
+                    can_pin_messages=True
+                )
+                await message.reply(f"User added as an admin in group {chat_id} with specified privileges.")
 
-            await message.reply(f"User added as an admin in group {chat_id} with specified privileges.")
+            await client.promote_chat_member(chat_id, user_id, privileges=privileges)
         except UserNotParticipant:
-            await message.reply(f"The user must be a member of group {chat_id} to use this command.")
+            await message.reply(f"The user must be a member of the chat {chat_id} to use this command.")
         except Exception as e:
             await message.reply(f"An error occurred: {str(e)}")
+            
