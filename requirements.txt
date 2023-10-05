@@ -1,0 +1,62 @@
+# Asynchronous and Networking Libraries
+aiofiles
+aiohttp==3.8.1
+httpcore>=0.9.0
+requests
+
+# Audio/Video Processing
+ffmpeg
+ffmpeg-python
+
+# Bot and Messaging Libraries
+pyrogram>=2.0.30
+tgcrypto
+
+# Data Storage and Databases
+pymongo[srv]==3.12.3
+motor==2.5.1
+umongo==3.0.1
+PyPDF2
+ujson
+
+# Date and Time
+datetime
+pytz
+
+# General Utilities
+bs4
+git+https://github.com/Joelkb/cinemagoer
+countryinfo
+dnspython==2.3.0
+gTTS
+googletrans==3.1.0a0
+pyshorteners
+speedtest-cli
+psutil==5.9.4
+wheel
+
+# Image Processing
+Pillow
+
+# Mathematical Functions
+python-math
+
+# Text Processing
+marshmallow==3.14.1
+telegraph
+
+# Web Scraping and Parsing
+search_engine_parser
+wget
+youtube-search-python==1.4.6
+yt-dlp
+youtube-dl
+youtube_search
+
+# Web Frameworks and Hosting
+Flask==2.2.2
+gunicorn==20.1.0
+Heroku3
+
+# Miscellaneous
+pip==23.2.1
